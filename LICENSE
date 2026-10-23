@@ -1,0 +1,19 @@
+On time — Licence d'utilisation
+Copyright © 2026 Krimossimo. Tous droits réservés.
+
+On time est un logiciel gratuit (freeware). Vous êtes autorisé à le télécharger,
+l'installer et l'utiliser gratuitement, à titre personnel ou professionnel,
+et à redistribuer l'installateur officiel sans modification.
+
+Sauf autorisation écrite de l'auteur, il est interdit de vendre le logiciel,
+de le redistribuer sous une forme modifiée ou de le publier sous un autre nom.
+
+Le logiciel est fourni « tel quel », sans garantie d'aucune sorte. Les horaires
+affichés sont calculés astronomiquement et peuvent différer de quelques minutes
+de ceux de votre mosquée : utilisez les ajustements manuels pour les faire
+correspondre.
+
+Composants tiers inclus :
+- adhan-js — © Batoul Apps, licence MIT (src/vendor/adhan/LICENSE)
+- tz-lookup — licence CC0 (src/vendor/tz-lookup.LICENSE)
+- Icônes d'interface inspirées de Lucide — licence ISC

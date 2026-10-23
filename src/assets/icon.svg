@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="bg" x1="0.1" y1="0" x2="0.9" y2="1">
+      <stop offset="0" stop-color="#8B5CF6"/>
+      <stop offset="0.55" stop-color="#5B21B6"/>
+      <stop offset="1" stop-color="#160A2E"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.3" cy="0.22" r="0.75">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.28"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="moon" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#E9DDFF"/>
+    </linearGradient>
+    <mask id="cres">
+      <rect width="1024" height="1024" fill="black"/>
+      <circle cx="500" cy="530" r="270" fill="white"/>
+      <circle cx="610" cy="450" r="225" fill="black"/>
+    </mask>
+  </defs>
+  <rect x="32" y="32" width="960" height="960" rx="228" fill="url(#bg)"/>
+  <rect x="32" y="32" width="960" height="960" rx="228" fill="url(#glow)"/>
+  <!-- clock ring -->
+  <circle cx="512" cy="512" r="352" fill="none" stroke="#ffffff" stroke-opacity="0.16" stroke-width="10"/>
+  <g stroke="#ffffff" stroke-opacity="0.55" stroke-width="14" stroke-linecap="round">
+    <line x1="512" y1="160" x2="512" y2="196"/>
+    <line x1="864" y1="512" x2="828" y2="512"/>
+    <line x1="512" y1="864" x2="512" y2="828"/>
+    <line x1="160" y1="512" x2="196" y2="512"/>
+  </g>
+  <rect width="1024" height="1024" fill="url(#moon)" mask="url(#cres)"/>
+  <!-- star -->
+  <path d="M700 330 L716 378 L764 394 L716 410 L700 458 L684 410 L636 394 L684 378 Z" fill="#ffffff"/>
+</svg>

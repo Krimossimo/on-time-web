@@ -1,0 +1,394 @@
+<!doctype html>
+<html lang="fr" data-theme="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; media-src 'self' data: blob:; manifest-src 'self'; worker-src 'self'; connect-src 'self' https://nominatim.openstreetmap.org https://ipwho.is https://ipapi.co https://get.geojs.io;" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>On time — Heures de prière en temps réel</title>
+  <meta name="description" content="On time affiche les heures de prière en temps réel selon votre ville : Fajr, Dhuhr, Asr, Maghrib, Isha. Méthodes de calcul, madhab, ajustements à la minute, notifications et sons doux. Gratuit, sur ordinateur et mobile." />
+  <meta name="theme-color" content="#0b0911" />
+  <meta name="color-scheme" content="dark light" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="On time" />
+  <meta property="og:title" content="On time — Heures de prière en temps réel" />
+  <meta property="og:description" content="Les heures de prière de votre ville, avec notifications et sons doux. Gratuit, sur ordinateur et mobile." />
+  <meta property="og:image" content="assets/icon-512.png" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" href="assets/icon.svg" type="image/svg+xml" />
+  <link rel="icon" href="assets/favicon-32.png" sizes="32x32" type="image/png" />
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png" />
+  <link rel="stylesheet" href="css/styles.css?v=__BUILD__" />
+  <link rel="stylesheet" href="css/web.css?v=__BUILD__" />
+  <script src="js/boot.js?v=__BUILD__"></script>
+</head>
+<body>
+  <!-- Écran de bienvenue : purement visuel, ne bloque jamais l'interface -->
+  <div class="splash" id="splash" aria-hidden="true">
+    <div class="splash-mark">
+      <svg class="splash-ring" viewBox="0 0 120 120"><circle cx="60" cy="60" r="56" /></svg>
+      <img src="assets/icon-192.png" alt="" />
+    </div>
+    <div class="splash-name"><span>On</span>&nbsp;<span>time</span></div>
+    <div class="splash-sub">Heures de prière</div>
+  </div>
+
+  <div class="page">
+  <div class="shell" id="shell">
+    <!-- Barre de titre -->
+    <header class="titlebar">
+      <div class="brand">
+        <img src="assets/icon-192.png" alt="" />
+        <span>On time</span>
+      </div>
+      <div class="controls">
+        <a class="ctl win-dl" id="btnWinTop" href="#" title="Télécharger On time pour Windows" data-icon="download" hidden></a>
+        <button class="ctl" id="btnFull" title="Plein écran" data-icon="maximize" hidden></button>
+        <button class="ctl" id="btnSettings" title="Paramètres" data-icon="settings"></button>
+      </div>
+    </header>
+
+    <!-- ============================ ACCUEIL ============================ -->
+    <main class="view view-home" id="viewHome">
+      <button class="place" id="placeBtn" title="Changer de lieu">
+        <span class="i" data-icon="mapPin"></span>
+        <span id="placeName">—</span>
+        <span class="i chev" data-icon="chevronDown"></span>
+      </button>
+
+      <section class="clock">
+        <div class="time">
+          <span id="clockHM">--:--</span><span class="sec" id="clockS"></span><span class="ampm" id="clockAP"></span>
+        </div>
+        <div class="dates">
+          <span id="dateG"></span>
+          <span class="hijri" id="dateH"></span>
+        </div>
+      </section>
+
+      <section class="next" id="nextCard">
+        <div class="next-top">
+          <span class="label" id="nextLabel">Prochaine prière</span>
+          <span class="countdown" id="countdown"></span>
+        </div>
+        <div class="next-main">
+          <div>
+            <div class="next-name" id="nextName">—</div>
+            <div class="next-ar" id="nextAr" lang="ar" dir="rtl"></div>
+          </div>
+          <div class="next-time" id="nextTime">--:--<small id="nextAP"></small></div>
+        </div>
+        <div class="progress"><div class="bar" id="progress"></div></div>
+      </section>
+
+      <ul class="list" id="list"></ul>
+
+      <footer class="meta" id="meta"></footer>
+      <a class="win-cta compact" id="btnWinHome" href="#" hidden>
+        <span class="i" data-icon="download"></span>Télécharger On time pour Windows
+      </a>
+    </main>
+
+    <!-- ========================== PARAMÈTRES ========================== -->
+    <section class="view view-settings" id="viewSettings" aria-hidden="true">
+      <div class="set-head">
+        <button class="back" id="btnBack" title="Retour"><span class="i" data-icon="chevronLeft"></span></button>
+        <h1>Paramètres</h1>
+      </div>
+      <nav class="chips" id="chips">
+        <button data-target="secLocation">Lieu</button>
+        <button data-target="secCalc">Calcul</button>
+        <button data-target="secNotif">Alertes</button>
+        <button data-target="secDisplay">Affichage</button>
+        <button data-target="secApp">Application</button>
+        <button data-target="secAbout">À propos</button>
+      </nav>
+
+      <div class="scroll" id="settingsScroll">
+
+        <!-- Lieu -->
+        <section class="group" id="secLocation">
+          <h2>Lieu</h2>
+          <div class="card">
+            <div class="seg" id="segLocMode">
+              <button data-value="auto"><span class="i" data-icon="locate"></span>Automatique</button>
+              <button data-value="manual"><span class="i" data-icon="search"></span>Manuel</button>
+            </div>
+
+            <div class="loc-current">
+              <div>
+                <div class="loc-city" id="locCity">—</div>
+                <div class="loc-sub" id="locSub"></div>
+              </div>
+              <button class="btn ghost small" id="btnDetect"><span class="i" data-icon="locate"></span>Détecter</button>
+            </div>
+
+            <div class="manual" id="manualPanel">
+              <label class="field">
+                <span>Pays</span>
+                <select id="selCountry"></select>
+              </label>
+              <label class="field search-field">
+                <span>Ville</span>
+                <div class="search-box">
+                  <span class="i" data-icon="search"></span>
+                  <input id="inpCity" type="text" placeholder="Rechercher une ville…" autocomplete="off" spellcheck="false" />
+                </div>
+                <ul class="results" id="cityResults"></ul>
+              </label>
+              <details class="advanced">
+                <summary>Coordonnées précises</summary>
+                <div class="coords">
+                  <label class="field"><span>Latitude</span><input id="inpLat" type="number" step="0.0001" /></label>
+                  <label class="field"><span>Longitude</span><input id="inpLon" type="number" step="0.0001" /></label>
+                  <button class="btn small" id="btnCoords">Appliquer</button>
+                </div>
+              </details>
+            </div>
+            <p class="hint" id="locHint"></p>
+          </div>
+        </section>
+
+        <!-- Calcul -->
+        <section class="group" id="secCalc">
+          <h2>Méthode de calcul</h2>
+          <div class="card">
+            <label class="field">
+              <span>Méthode</span>
+              <select id="selMethod"></select>
+            </label>
+            <p class="hint" id="methodHint"></p>
+
+            <div class="custom" id="customPanel">
+              <label class="field"><span>Angle Fajr (°)</span><input id="inpFajrAngle" type="number" step="0.1" min="0" max="25" /></label>
+              <label class="field"><span>Angle Isha (°)</span><input id="inpIshaAngle" type="number" step="0.1" min="0" max="25" /></label>
+              <label class="field"><span>ou Isha après Maghrib (min)</span><input id="inpIshaInterval" type="number" step="1" min="0" max="180" placeholder="0 = angle" /></label>
+            </div>
+
+            <div class="row-set col">
+              <div class="row-label">
+                <strong>Madhab pour l’Asr</strong>
+              </div>
+              <div class="seg" id="segMadhab">
+                <button data-value="shafi">Standard<small>Chafi’i · Maliki · Hanbali</small></button>
+                <button data-value="hanafi">Hanafi<small>Ombre × 2</small></button>
+              </div>
+            </div>
+
+            <label class="field">
+              <span>Hautes latitudes (été)</span>
+              <select id="selHighLat">
+                <option value="auto">Automatique (recommandé)</option>
+                <option value="middle">Milieu de la nuit</option>
+                <option value="seventh">Septième de la nuit</option>
+                <option value="twilight">Angle du crépuscule</option>
+              </select>
+            </label>
+          </div>
+
+          <h2 class="with-action">
+            Ajustements manuels
+            <button class="link" id="btnResetAdj"><span class="i" data-icon="reset"></span>Remettre à zéro</button>
+          </h2>
+          <div class="card">
+            <p class="hint top">Décalez chaque prière de −15 à +15 minutes pour coller exactement au calendrier de votre mosquée ou de Mawaqit.</p>
+            <div class="adjust" id="adjustList"></div>
+          </div>
+        </section>
+
+        <!-- Notifications -->
+        <section class="group" id="secNotif">
+          <h2>Notifications</h2>
+          <div class="card">
+            <div class="row-set">
+              <div class="row-label"><strong>Notifications</strong><small>Une alerte à l’heure de chaque prière</small></div>
+              <label class="switch"><input type="checkbox" id="swNotif" /><i></i></label>
+            </div>
+            <div class="perm" id="permRow">
+              <span class="perm-dot"></span>
+              <span class="perm-text" id="permText"></span>
+              <button class="btn small accent" id="btnPerm" hidden>Autoriser</button>
+            </div>
+            <div class="prayer-toggles" id="prayerToggles"></div>
+            <label class="field">
+              <span>Rappel avant la prière</span>
+              <select id="selReminder">
+                <option value="0">Désactivé</option>
+                <option value="5">5 minutes avant</option>
+                <option value="10">10 minutes avant</option>
+                <option value="15">15 minutes avant</option>
+                <option value="20">20 minutes avant</option>
+                <option value="30">30 minutes avant</option>
+              </select>
+            </label>
+            <p class="hint" id="bgHint">Les alertes et le son fonctionnent tant que On time est ouvert (onglet, même en arrière-plan, ou application installée). Pour être prévenu même navigateur fermé, utilisez la version Windows.</p>
+          </div>
+
+          <h2>Son</h2>
+          <div class="card">
+            <div class="row-set">
+              <div class="row-label"><strong>Son à l’heure de la prière</strong><small>Un son doux et discret</small></div>
+              <label class="switch"><input type="checkbox" id="swSound" /><i></i></label>
+            </div>
+            <div class="row-set col">
+              <div class="row-label"><strong>Son</strong></div>
+              <div class="tones" id="tones">
+                <button data-tone="carillon">Carillon<small>Trois cloches</small></button>
+                <button data-tone="cristal">Cristal<small>Verre léger</small></button>
+                <button data-tone="harpe">Harpe<small>Arpège doux</small></button>
+                <button data-tone="bol">Bol chantant<small>Note grave</small></button>
+                <button data-tone="goutte">Goutte d’eau<small>Bref et clair</small></button>
+                <button data-tone="aube">Aube<small>Accord tenu</small></button>
+              </div>
+            </div>
+            <div class="row-set volume">
+              <span class="i" data-icon="volume"></span>
+              <input type="range" id="rngVolume" min="0" max="1" step="0.05" />
+              <button class="btn ghost small" id="btnTestSound"><span class="i" data-icon="play"></span>Écouter</button>
+            </div>
+            <button class="btn ghost full" id="btnTestNotif"><span class="i" data-icon="bell"></span>Envoyer une notification de test</button>
+          </div>
+        </section>
+
+        <!-- Affichage -->
+        <section class="group" id="secDisplay">
+          <h2>Affichage</h2>
+          <div class="card">
+            <div class="row-set" id="rowWindowMode">
+              <div class="row-label"><strong>Mode d’affichage</strong><small>Le plein écran est idéal sur un second écran</small></div>
+              <div class="seg compact" id="segWindowMode">
+                <button data-value="window">Fenêtré</button>
+                <button data-value="fullscreen">Plein écran</button>
+              </div>
+            </div>
+            <div class="row-set">
+              <div class="row-label"><strong>Format de l’heure</strong></div>
+              <div class="seg compact" id="segFormat">
+                <button data-value="24">24 h</button>
+                <button data-value="12">12 h</button>
+              </div>
+            </div>
+            <div class="row-set">
+              <div class="row-label"><strong>Thème</strong></div>
+              <div class="seg compact" id="segTheme">
+                <button data-value="dark">Sombre</button>
+                <button data-value="light">Clair</button>
+              </div>
+            </div>
+            <div class="row-set col">
+              <div class="row-label"><strong>Couleur du menu</strong></div>
+              <div class="swatches" id="swatches"></div>
+            </div>
+            <div class="row-set">
+              <div class="row-label"><strong>Afficher les secondes</strong></div>
+              <label class="switch"><input type="checkbox" id="swSeconds" /><i></i></label>
+            </div>
+          </div>
+        </section>
+
+        <!-- Application -->
+        <section class="group" id="secApp">
+          <h2>Application</h2>
+          <div class="card">
+            <div class="row-set" id="rowInstall">
+              <div class="row-label"><strong>Installer l’application</strong><small id="installText">Accès direct depuis l’écran d’accueil, même hors-ligne</small></div>
+              <button class="btn small accent" id="btnInstall" hidden><span class="i" data-icon="plus"></span>Installer</button>
+            </div>
+            <div class="row-set" id="rowWin" hidden>
+              <div class="row-label"><strong>On time pour Windows</strong><small id="winText">Widget, notifications en arrière-plan, lancement avec Windows</small></div>
+              <a class="btn small ghost" id="btnWinSettings" href="#"><span class="i" data-icon="download"></span>Télécharger</a>
+            </div>
+          </div>
+        </section>
+
+        <!-- Don -->
+        <section class="group">
+          <div class="card donate">
+            <div class="donate-ic"><span class="i" data-icon="heart"></span></div>
+            <div class="donate-text">
+              <strong>Soutenir On time</strong>
+              <small>L’application est gratuite. Si elle vous est utile, un petit don aide à la faire vivre.</small>
+            </div>
+            <button class="btn accent" id="btnDonate">Faire un don</button>
+          </div>
+        </section>
+
+        <!-- À propos -->
+        <section class="group" id="secAbout">
+          <h2>À propos</h2>
+          <div class="card about">
+            <img src="assets/icon-192.png" alt="" class="about-logo" />
+            <div class="about-name">On time</div>
+            <div class="about-ver" id="aboutVer"></div>
+            <p>Application créée par <strong>Krimossimo</strong></p>
+            <p class="muted">Afficher les heures de prières en temps réel, sur ordinateur et mobile.</p>
+            <div class="about-links">
+              <button class="link" id="btnPaypal"><span class="i" data-icon="heart"></span>paypal.me/Krimossimo</button>
+              <a class="link" id="lnkRepo" href="#" target="_blank" rel="noopener" hidden><span class="i" data-icon="github"></span>Code source</a>
+            </div>
+            <p class="legal" id="legal"></p>
+            <p class="credits">Calculs astronomiques : bibliothèque adhan (MIT) · Recherche de villes : © OpenStreetMap</p>
+          </div>
+
+          <div class="card danger">
+            <div class="row-set">
+              <div class="row-label"><strong>Réinitialiser On time</strong><small>Efface vos réglages sur cet appareil</small></div>
+              <button class="btn danger small" id="btnUninstall"><span class="i" data-icon="reset"></span>Réinitialiser</button>
+            </div>
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <!-- Fenêtre de confirmation -->
+    <div class="modal" id="modal" aria-hidden="true">
+      <div class="modal-card">
+        <div class="modal-ic"><span class="i" data-icon="reset"></span></div>
+        <h3>Réinitialiser On time ?</h3>
+        <p>Votre lieu, la méthode de calcul, les ajustements et toutes vos préférences reviendront aux valeurs par défaut sur cet appareil.</p>
+        <div class="modal-actions">
+          <button class="btn ghost" id="btnCancel">Annuler</button>
+          <button class="btn danger" id="btnConfirm">Réinitialiser</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+  </div>
+
+  <!-- Présentation (à gauche sur ordinateur, sous l'application sur mobile) -->
+  <section class="hero">
+    <div class="hero-brand"><img src="assets/icon-192.png" alt="" /><span>On time</span></div>
+    <h1>Les heures de prière,<br /><em>toujours à l’heure.</em></h1>
+    <p class="hero-lead">Les horaires de votre ville en temps réel, calculés selon la méthode de votre mosquée, avec une alerte douce à chaque prière.</p>
+    <div class="hero-actions">
+      <a class="win-cta" id="btnWinHero" href="#" hidden>
+        <span class="i" data-icon="download"></span>
+        <span><strong>Télécharger On time pour Windows</strong><small id="winMeta">Gratuit</small></span>
+      </a>
+      <button class="btn ghost hero-install" id="btnInstallHero" hidden><span class="i" data-icon="plus"></span>Installer l’application web</button>
+    </div>
+    <p class="win-missing" id="winMissing" hidden>La version Windows sera bientôt disponible au téléchargement.</p>
+    <ul class="hero-features">
+      <li><span class="i" data-icon="locate"></span><span><strong>Votre ville, automatiquement</strong>Géolocalisation ou recherche manuelle, partout dans le monde.</span></li>
+      <li><span class="i" data-icon="settings"></span><span><strong>Fidèle à votre mosquée</strong>12°, 15°, 18°, Ligue Islamique Mondiale… madhab et ajustements à la minute.</span></li>
+      <li><span class="i" data-icon="bell"></span><span><strong>Alertes discrètes</strong>Notifications prière par prière et six sons doux au choix.</span></li>
+    </ul>
+    <footer class="site-foot">
+      <span>© <span id="footYear">2026</span> Krimossimo — Tous droits réservés.</span>
+      <a href="https://paypal.me/Krimossimo" target="_blank" rel="noopener">Faire un don</a>
+    </footer>
+  </section>
+  </div>
+
+  <script src="js/config.js?v=__BUILD__"></script>
+  <script src="js/core.js?v=__BUILD__"></script>
+  <script src="js/web-api.js?v=__BUILD__"></script>
+  <script src="js/icons.js?v=__BUILD__"></script>
+  <script src="js/icons-web.js?v=__BUILD__"></script>
+  <script src="js/sound.js?v=__BUILD__"></script>
+  <script src="js/app.js?v=__BUILD__"></script>
+</body>
+</html>
