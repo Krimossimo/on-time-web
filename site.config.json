@@ -1,5 +1,9 @@
 {
   "version": "1.1.0",
-  "repoUrl": "",
-  "windows": null
+  "repoUrl": "https://github.com/Krimossimo/on-time-web",
+  "windows": {
+    "version": "1.1.0",
+    "url": "https://github.com/Krimossimo/on-time-web/releases/latest/download/On-time-Setup-Windows.exe",
+    "sizeMB": 75
+  }
 }

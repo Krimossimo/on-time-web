@@ -659,7 +659,7 @@
 
   /** Relie les boutons « Télécharger pour Windows » au véritable fichier publié. */
   function setupWindowsLinks(win) {
-    const ok = !!(win && /^https:\/\/github\.com\/.+\/releases\/download\//.test(win.url));
+    const ok = !!(win && /^https:\/\/github\.com\/[^/]+\/[^/]+\/releases\/(latest\/)?download\/[^/]+\.exe$/.test(win.url));
     ['#btnWinHero', '#btnWinHome', '#btnWinTop', '#btnWinSettings'].forEach((id) => {
       const a = $(id);
       if (ok) { a.href = win.url; a.setAttribute('download', ''); a.rel = 'noopener'; }

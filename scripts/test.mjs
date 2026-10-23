@@ -45,4 +45,8 @@ assert.ok(!sw.includes('__FILES__'));
 for (const f of JSON.parse(sw.match(/const SHELL = (\[[\s\S]*?\]);/)[1])) {
   if (f !== './') assert.ok(fs.existsSync(dist(f.split('?')[0])), `fichier du cache absent : ${f}`);
 }
+// Lien Windows : uniquement une vraie adresse de téléchargement GitHub Releases
+const cfg = fs.readFileSync(dist('js/config.js'), 'utf8');
+const win = JSON.parse(cfg.slice(cfg.indexOf('{'), cfg.lastIndexOf('}') + 1)).windows;
+if (win) assert.match(win.url, /^https:\/\/github\.com\/[^/]+\/[^/]+\/releases\/(latest\/)?download\/[^/]+\.exe$/);
 console.log('✓ Tous les tests passent');
