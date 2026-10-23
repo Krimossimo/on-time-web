@@ -1,4 +1,5 @@
-/* On time — logique de l'interface (version web, adaptée de src/renderer/app.js de la version Windows) */
+/* On time Web — logique de l'interface.
+   Réglages et formats repris de src/renderer/app.js (version Windows) ; tableau de bord propre au web. */
 (() => {
   'use strict';
 
@@ -115,19 +116,39 @@
     $('#list').innerHTML = t.today.map((e) => {
       const p = BY_KEY[e.key];
       const on = n.enabled && n.prayers[e.key];
-      return `<li class="row ${e.key}" data-key="${e.key}">
-        <span class="ico" data-icon="${e.key}"></span>
-        <span class="nm">${p.fr}<small lang="ar">${p.ar}</small></span>
-        <span class="tm">${timeHTML(e.time)}</span>
-        <button class="bell ${on ? 'on' : ''}" data-bell="${e.key}" title="${on ? 'Désactiver' : 'Activer'} la notification" data-icon="${on ? 'bell' : 'bellOff'}"></button>
+      return `<li class="prayer" data-key="${e.key}">
+        <span class="prayer-ico" data-icon="${e.key}"></span>
+        <span class="prayer-name"><strong>${p.fr}</strong><small lang="ar">${p.ar}</small></span>
+        <span class="prayer-time">${timeHTML(e.time)}</span>
+        <button class="prayer-bell ${on ? 'on' : ''}" data-bell="${e.key}" title="${on ? 'Désactiver' : 'Activer'} la notification de ${p.fr}" aria-pressed="${on}" data-icon="${on ? 'bell' : 'bellOff'}"></button>
       </li>`;
     }).join('');
     Icons.hydrate($('#list'));
+
+    // Repères des prières sur la frise de la journée
+    const track = $('#dayTrack');
+    track.querySelectorAll('.day-mark').forEach((m) => m.remove());
+    t.today.forEach((e) => {
+      if (!e.time) return;
+      const m = document.createElement('span');
+      m.className = `day-mark ${e.key}`;
+      m.dataset.key = e.key;
+      m.style.left = `${dayPct(e.time)}%`;
+      m.title = `${BY_KEY[e.key].fr} · ${hm(e.time).text}${hm(e.time).ap ? ' ' + hm(e.time).ap : ''}`;
+      track.appendChild(m);
+    });
 
     const loc = state.settings.location;
     $('#placeName').textContent = [loc.city, loc.country].filter(Boolean).join(', ') || 'Choisir un lieu';
     const madhab = state.settings.calc.madhab === 'hanafi' ? 'Asr hanafi' : 'Asr standard';
     $('#meta').textContent = `${t.method.name} · ${madhab}`;
+  }
+
+  /** Position (en %) d'un instant dans la journée civile du lieu (00:00 → 24:00). */
+  function dayPct(ms) {
+    const parts = new Intl.DateTimeFormat('en-GB', { timeZone: tz(), hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23' }).formatToParts(ms);
+    const g = (k) => Number(parts.find((p) => p.type === k)?.value || 0);
+    return ((g('hour') * 3600 + g('minute') * 60 + g('second')) / 86400) * 100;
   }
 
   function renderClock() {
@@ -160,15 +181,25 @@
       if (prev) {
         const pct = Math.min(100, Math.max(0, ((now - prev.time) / (next.time - prev.time)) * 100));
         $('#progress').style.width = `${pct.toFixed(2)}%`;
+        const pt = hm(prev.time);
+        $('#nextSince').textContent = `Depuis ${BY_KEY[prev.key].fr} · ${pt.text}${pt.ap ? ' ' + pt.ap : ''}`;
       }
     }
+    const pctNow = dayPct(now);
+    $('#dayFill').style.width = `${pctNow.toFixed(3)}%`;
+    $('#dayNow').style.left = `${pctNow.toFixed(3)}%`;
 
     // Lignes passées / prochaine
     const todayNext = state.times.today.find((e) => e.key !== 'sunrise' && e.time > now);
-    $$('#list .row').forEach((row) => {
+    $$('#list .prayer').forEach((row) => {
       const e = state.times.today.find((x) => x.key === row.dataset.key);
-      row.classList.toggle('passed', !!e.time && e.time <= now);
-      row.classList.toggle('next', !!todayNext && todayNext.key === e.key);
+      row.classList.toggle('is-passed', !!e.time && e.time <= now);
+      row.classList.toggle('is-next', !!todayNext && todayNext.key === e.key);
+    });
+    $$('#dayTrack .day-mark').forEach((m) => {
+      const e = state.times.today.find((x) => x.key === m.dataset.key);
+      m.classList.toggle('is-passed', !!e?.time && e.time <= now);
+      m.classList.toggle('is-next', !!todayNext && todayNext.key === m.dataset.key);
     });
   }
 
@@ -187,6 +218,7 @@
       try { history.pushState({ ontime: 'settings' }, '', '#parametres'); } catch { /* ignore */ }
     }
     $('#shell').classList.add('settings-open');
+    document.body.classList.add('no-scroll');
     $('#viewSettings').setAttribute('aria-hidden', 'false');
     if (sectionId) requestAnimationFrame(() => scrollToSection(sectionId, false));
   }
@@ -196,6 +228,7 @@
       try { history.replaceState(null, '', location.pathname + location.search); } catch { /* ignore */ }
     }
     $('#shell').classList.remove('settings-open');
+    document.body.classList.remove('no-scroll');
     $('#viewSettings').setAttribute('aria-hidden', 'true');
     $('#cityResults').classList.remove('open');
   }
@@ -543,18 +576,6 @@
       toast('Réglages réinitialisés');
     });
 
-    // Installation (PWA)
-    const doInstall = async () => {
-      const st = api.capabilities().install;
-      if (st === 'ios') { toast('Sur iPhone : touchez Partager puis « Sur l’écran d’accueil »'); return; }
-      const r = await api.install();
-      if (r === 'accepted') toast('On time est installé');
-      renderWeb();
-    };
-    $('#btnInstall').addEventListener('click', doInstall);
-    $('#btnInstallHero').addEventListener('click', doInstall);
-    api.onInstall(renderWeb);
-    api.onPermission(renderWeb);
     $('#btnFull').addEventListener('click', () =>
       save('display.windowMode', state.settings.display.windowMode === 'fullscreen' ? 'window' : 'fullscreen'));
 
@@ -600,7 +621,9 @@
     $('#legal').textContent = `© ${info.year} Krimossimo — Tous droits réservés.`;
     $('#footYear').textContent = info.year;
     setupWindowsLinks(info.windows);
-    if (info.repoUrl) { $('#lnkRepo').href = info.repoUrl; $('#lnkRepo').hidden = false; }
+    if (info.repoUrl) {
+      ['#lnkRepo', '#lnkRepoFoot'].forEach((id) => { $(id).href = info.repoUrl; $(id).hidden = false; });
+    }
 
     buildStaticControls();
     bindSettings();
@@ -617,6 +640,8 @@
     $('#btnBack').addEventListener('click', () => closeSettings());
     addEventListener('popstate', () => { if ($('#shell').classList.contains('settings-open')) closeSettings({ fromHistory: true }); });
     $('#placeBtn').addEventListener('click', () => openSettings('secLocation'));
+    $('#btnAbout').addEventListener('click', () => openSettings('secAbout'));
+    $('#drawerBackdrop').addEventListener('click', () => closeSettings());
     $('#list').addEventListener('click', (e) => {
       const b = e.target.closest('[data-bell]');
       if (!b) return;
@@ -645,12 +670,11 @@
     // Fenêtré / plein écran
     const setMode = (mode) => {
       document.documentElement.classList.toggle('is-fullscreen', mode === 'fullscreen');
-      fitFullscreen();
+      if (mode === 'fullscreen') closeSettings();
       renderWeb();
     };
     api.onWindowMode(setMode);
     api.getWindowMode().then(setMode);
-    window.addEventListener('resize', fitFullscreen);
   }
 
   /* ------------------------------------------------------------------ */
@@ -660,16 +684,15 @@
   /** Relie les boutons « Télécharger pour Windows » au véritable fichier publié. */
   function setupWindowsLinks(win) {
     const ok = !!(win && /^https:\/\/github\.com\/[^/]+\/[^/]+\/releases\/(latest\/)?download\/[^/]+\.exe$/.test(win.url));
-    ['#btnWinHero', '#btnWinHome', '#btnWinTop', '#btnWinSettings'].forEach((id) => {
+    ['#btnWinNav', '#btnWinSettings'].forEach((id) => {
       const a = $(id);
       if (ok) { a.href = win.url; a.setAttribute('download', ''); a.rel = 'noopener'; }
       a.hidden = !ok;
     });
     $('#rowWin').hidden = !ok;
-    $('#winMissing').hidden = ok;
     if (ok) {
       const meta = [`Version ${win.version}`, 'Windows 10 et 11', win.sizeMB ? `${win.sizeMB} Mo` : '', 'gratuit'].filter(Boolean).join(' · ');
-      $('#winMeta').textContent = meta;
+      $('#btnWinNav').title = `Télécharger On time pour Windows — ${meta}`;
       $('#winText').textContent = `${meta} — widget, alertes en arrière-plan, lancement avec Windows`;
     }
   }
@@ -698,17 +721,6 @@
     $('#permText').textContent = texts[perm];
     $('#btnPerm').hidden = perm !== 'default';
 
-    // Installation
-    const inst = cap.install;
-    const btn = $('#btnInstall');
-    btn.hidden = !(inst === 'available' || inst === 'ios');
-    $('#btnInstallHero').hidden = !(inst === 'available' || inst === 'ios');
-    $('#installText').textContent = {
-      installed: 'On time est installé sur cet appareil',
-      available: 'Accès direct depuis l’écran d’accueil, même hors-ligne',
-      ios: 'Sur iPhone / iPad : Partager → « Sur l’écran d’accueil »',
-      unavailable: 'Utilisez le menu du navigateur → « Installer l’application » ou « Ajouter à l’écran d’accueil »',
-    }[inst];
   }
 
   /** Écran de bienvenue : disparaît seul dès que l'interface est prête (≈ 1 s au maximum). */
@@ -723,12 +735,6 @@
       splash.classList.add('out');
       setTimeout(() => splash.remove(), reduced ? 200 : 520);
     }, Math.max(0, minVisible - shown));
-  }
-
-  /* En plein écran, le widget est agrandi et centré */
-  function fitFullscreen() {
-    const fs = Math.min((innerWidth - 48) / 380, (innerHeight - 44 - 48) / 616, 2.6);
-    document.documentElement.style.setProperty('--fs', Math.max(1, fs).toFixed(3));
   }
 
   init();

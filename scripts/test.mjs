@@ -34,7 +34,7 @@ assert.equal(prayer.recommendedMethod('FR'), 'uoif');
 assert.ok(prayer.METHODS.length >= 18);
 
 // Fichiers attendus et chemins relatifs (fonctionne sous /on-time-web/ sur GitHub Pages)
-for (const f of ['index.html', '404.html', 'sw.js', 'manifest.webmanifest', '.nojekyll', 'js/app.js', 'js/web-api.js', 'js/config.js', 'css/web.css', 'assets/icon-192.png']) {
+for (const f of ['index.html', '404.html', 'sw.js', 'manifest.webmanifest', '.nojekyll', 'js/app.js', 'js/web-api.js', 'js/config.js', 'css/app.css', 'assets/icon-192.png']) {
   assert.ok(fs.existsSync(dist(f)), `manquant : ${f}`);
 }
 const html = fs.readFileSync(dist('index.html'), 'utf8');

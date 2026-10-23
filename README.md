@@ -4,7 +4,7 @@
 
 <h1 align="center">On time — version web</h1>
 <p align="center"><b>Les heures de prière en temps réel, sur ordinateur et mobile.</b><br/>
-Gratuit, sans compte, sans publicité. Installable comme une application (PWA).</p>
+Gratuit, sans compte, sans publicité.</p>
 
 <p align="center">
   <a href="https://krimossimo.github.io/on-time-web/">🌐 Ouvrir On time</a> ·
@@ -46,9 +46,9 @@ npm run sync     # recopie les fichiers partagés depuis le projet Windows (doss
 ```
 src/core/            moteur de calcul — identique à la version Windows (src/main/prayer.js, store.js, vendor/)
 src/js/web-api.js    remplace le processus Electron : réglages, lieu, alertes, plein écran, PWA
-src/js/app.js        interface (adaptée de src/renderer/app.js de la version Windows)
+src/js/app.js        tableau de bord web ; réglages repris de src/renderer/app.js (version Windows)
 src/css/styles.css   styles — identiques à la version Windows
-src/css/web.css      mise en page web, mobile, écran de bienvenue
+src/css/app.css      mise en page de l'application web (ordinateur, mobile), écran de bienvenue
 scripts/build.mjs    regroupe le moteur pour le navigateur et génère dist/
 site.config.json     version et lien de l'installateur Windows
 ```

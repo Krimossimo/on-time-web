@@ -21,7 +21,7 @@
   <link rel="icon" href="assets/favicon-32.png" sizes="32x32" type="image/png" />
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png" />
   <link rel="stylesheet" href="css/styles.css?v=__BUILD__" />
-  <link rel="stylesheet" href="css/web.css?v=__BUILD__" />
+  <link rel="stylesheet" href="css/app.css?v=__BUILD__" />
   <script src="js/boot.js?v=__BUILD__"></script>
 </head>
 <body>
@@ -35,79 +35,93 @@
     <div class="splash-sub">Heures de prière</div>
   </div>
 
-  <div class="page">
-  <div class="shell" id="shell">
-    <!-- Barre de titre -->
-    <header class="titlebar">
-      <div class="brand">
-        <img src="assets/icon-192.png" alt="" />
-        <span>On time</span>
-      </div>
-      <div class="controls">
-        <a class="ctl win-dl" id="btnWinTop" href="#" title="Télécharger On time pour Windows" data-icon="download" hidden></a>
-        <button class="ctl" id="btnFull" title="Plein écran" data-icon="maximize" hidden></button>
-        <button class="ctl" id="btnSettings" title="Paramètres" data-icon="settings"></button>
+  <div class="app" id="shell">
+    <!-- ============================ NAVIGATION ============================ -->
+    <header class="nav">
+      <div class="nav-inner">
+        <a class="logo" href="./" aria-label="On time — accueil">
+          <img src="assets/icon-192.png" alt="" />
+          <span>On time</span>
+        </a>
+        <button class="place" id="placeBtn" title="Changer de lieu">
+          <span class="i" data-icon="mapPin"></span>
+          <span id="placeName">—</span>
+          <span class="i chev" data-icon="chevronDown"></span>
+        </button>
+        <div class="nav-actions">
+          <button class="icon-btn" id="btnFull" title="Plein écran" data-icon="maximize" hidden></button>
+          <button class="icon-btn" id="btnSettings" title="Paramètres" data-icon="settings"></button>
+          <a class="dl-btn" id="btnWinNav" href="#" hidden>
+            <span class="i" data-icon="download"></span>
+            <span class="dl-long">Télécharger On time pour Windows</span>
+            <span class="dl-short">Windows</span>
+          </a>
+        </div>
       </div>
     </header>
 
-    <!-- ============================ ACCUEIL ============================ -->
-    <main class="view view-home" id="viewHome">
-      <button class="place" id="placeBtn" title="Changer de lieu">
-        <span class="i" data-icon="mapPin"></span>
-        <span id="placeName">—</span>
-        <span class="i chev" data-icon="chevronDown"></span>
-      </button>
+    <!-- ============================ TABLEAU DE BORD ============================ -->
+    <main class="dash" id="viewHome">
+      <section class="hero-grid">
+        <div class="now">
+          <p class="now-date" id="dateG"></p>
+          <div class="now-time"><span id="clockHM">--:--</span><span class="now-sec" id="clockS"></span><span class="now-ap" id="clockAP"></span></div>
+          <p class="now-hijri" id="dateH"></p>
+        </div>
 
-      <section class="clock">
-        <div class="time">
-          <span id="clockHM">--:--</span><span class="sec" id="clockS"></span><span class="ampm" id="clockAP"></span>
-        </div>
-        <div class="dates">
-          <span id="dateG"></span>
-          <span class="hijri" id="dateH"></span>
-        </div>
-      </section>
-
-      <section class="next" id="nextCard">
-        <div class="next-top">
-          <span class="label" id="nextLabel">Prochaine prière</span>
-          <span class="countdown" id="countdown"></span>
-        </div>
-        <div class="next-main">
-          <div>
-            <div class="next-name" id="nextName">—</div>
-            <div class="next-ar" id="nextAr" lang="ar" dir="rtl"></div>
+        <article class="upnext" id="nextCard">
+          <header class="upnext-top">
+            <span class="upnext-label" id="nextLabel">Prochaine prière</span>
+            <span class="upnext-count" id="countdown"></span>
+          </header>
+          <div class="upnext-main">
+            <div>
+              <h2 class="upnext-name" id="nextName">—</h2>
+              <p class="upnext-ar" id="nextAr" lang="ar" dir="rtl"></p>
+            </div>
+            <div class="upnext-time" id="nextTime">--:--</div>
           </div>
-          <div class="next-time" id="nextTime">--:--<small id="nextAP"></small></div>
-        </div>
-        <div class="progress"><div class="bar" id="progress"></div></div>
+          <div class="upnext-bar"><div class="upnext-fill" id="progress"></div></div>
+          <p class="upnext-since" id="nextSince"></p>
+        </article>
       </section>
 
-      <ul class="list" id="list"></ul>
+      <section class="day" aria-label="Déroulé de la journée">
+        <div class="day-track" id="dayTrack">
+          <div class="day-fill" id="dayFill"></div>
+          <div class="day-now" id="dayNow"></div>
+        </div>
+        <div class="day-scale"><span>00:00</span><span>06:00</span><span>12:00</span><span>18:00</span><span>24:00</span></div>
+      </section>
 
-      <footer class="meta" id="meta"></footer>
-      <a class="win-cta compact" id="btnWinHome" href="#" hidden>
-        <span class="i" data-icon="download"></span>Télécharger On time pour Windows
-      </a>
+      <ul class="prayers" id="list"></ul>
+
+      <footer class="foot">
+        <span class="foot-meta" id="meta"></span>
+        <span class="foot-links">
+          <a href="https://paypal.me/Krimossimo" target="_blank" rel="noopener">Faire un don</a>
+          <button class="foot-link" id="btnAbout">À propos</button>
+          <a id="lnkRepoFoot" href="#" target="_blank" rel="noopener" hidden>Code source</a>
+        </span>
+        <span class="foot-legal">© <span id="footYear">2026</span> Krimossimo — Tous droits réservés.</span>
+      </footer>
     </main>
 
-    <!-- ========================== PARAMÈTRES ========================== -->
-    <section class="view view-settings" id="viewSettings" aria-hidden="true">
+    <!-- ============================ PARAMÈTRES ============================ -->
+    <div class="drawer-backdrop" id="drawerBackdrop"></div>
+    <aside class="drawer" id="viewSettings" aria-hidden="true" aria-label="Paramètres">
       <div class="set-head">
-        <button class="back" id="btnBack" title="Retour"><span class="i" data-icon="chevronLeft"></span></button>
         <h1>Paramètres</h1>
+        <button class="icon-btn" id="btnBack" title="Fermer" data-icon="x"></button>
       </div>
       <nav class="chips" id="chips">
         <button data-target="secLocation">Lieu</button>
         <button data-target="secCalc">Calcul</button>
         <button data-target="secNotif">Alertes</button>
         <button data-target="secDisplay">Affichage</button>
-        <button data-target="secApp">Application</button>
         <button data-target="secAbout">À propos</button>
       </nav>
-
       <div class="scroll" id="settingsScroll">
-
         <!-- Lieu -->
         <section class="group" id="secLocation">
           <h2>Lieu</h2>
@@ -288,21 +302,6 @@
           </div>
         </section>
 
-        <!-- Application -->
-        <section class="group" id="secApp">
-          <h2>Application</h2>
-          <div class="card">
-            <div class="row-set" id="rowInstall">
-              <div class="row-label"><strong>Installer l’application</strong><small id="installText">Accès direct depuis l’écran d’accueil, même hors-ligne</small></div>
-              <button class="btn small accent" id="btnInstall" hidden><span class="i" data-icon="plus"></span>Installer</button>
-            </div>
-            <div class="row-set" id="rowWin" hidden>
-              <div class="row-label"><strong>On time pour Windows</strong><small id="winText">Widget, notifications en arrière-plan, lancement avec Windows</small></div>
-              <a class="btn small ghost" id="btnWinSettings" href="#"><span class="i" data-icon="download"></span>Télécharger</a>
-            </div>
-          </div>
-        </section>
-
         <!-- Don -->
         <section class="group">
           <div class="card donate">
@@ -332,6 +331,13 @@
             <p class="credits">Calculs astronomiques : bibliothèque adhan (MIT) · Recherche de villes : © OpenStreetMap</p>
           </div>
 
+          <div class="card win-card" id="rowWin" hidden>
+            <div class="row-set">
+              <div class="row-label"><strong>On time pour Windows</strong><small id="winText">Widget, alertes en arrière-plan, lancement avec Windows</small></div>
+              <a class="btn small accent" id="btnWinSettings" href="#"><span class="i" data-icon="download"></span>Télécharger</a>
+            </div>
+          </div>
+
           <div class="card danger">
             <div class="row-set">
               <div class="row-label"><strong>Réinitialiser On time</strong><small>Efface vos réglages sur cet appareil</small></div>
@@ -340,7 +346,7 @@
           </div>
         </section>
       </div>
-    </section>
+    </aside>
 
     <!-- Fenêtre de confirmation -->
     <div class="modal" id="modal" aria-hidden="true">
@@ -356,31 +362,6 @@
     </div>
 
     <div class="toast" id="toast"></div>
-  </div>
-
-  <!-- Présentation (à gauche sur ordinateur, sous l'application sur mobile) -->
-  <section class="hero">
-    <div class="hero-brand"><img src="assets/icon-192.png" alt="" /><span>On time</span></div>
-    <h1>Les heures de prière,<br /><em>toujours à l’heure.</em></h1>
-    <p class="hero-lead">Les horaires de votre ville en temps réel, calculés selon la méthode de votre mosquée, avec une alerte douce à chaque prière.</p>
-    <div class="hero-actions">
-      <a class="win-cta" id="btnWinHero" href="#" hidden>
-        <span class="i" data-icon="download"></span>
-        <span><strong>Télécharger On time pour Windows</strong><small id="winMeta">Gratuit</small></span>
-      </a>
-      <button class="btn ghost hero-install" id="btnInstallHero" hidden><span class="i" data-icon="plus"></span>Installer l’application web</button>
-    </div>
-    <p class="win-missing" id="winMissing" hidden>La version Windows sera bientôt disponible au téléchargement.</p>
-    <ul class="hero-features">
-      <li><span class="i" data-icon="locate"></span><span><strong>Votre ville, automatiquement</strong>Géolocalisation ou recherche manuelle, partout dans le monde.</span></li>
-      <li><span class="i" data-icon="settings"></span><span><strong>Fidèle à votre mosquée</strong>12°, 15°, 18°, Ligue Islamique Mondiale… madhab et ajustements à la minute.</span></li>
-      <li><span class="i" data-icon="bell"></span><span><strong>Alertes discrètes</strong>Notifications prière par prière et six sons doux au choix.</span></li>
-    </ul>
-    <footer class="site-foot">
-      <span>© <span id="footYear">2026</span> Krimossimo — Tous droits réservés.</span>
-      <a href="https://paypal.me/Krimossimo" target="_blank" rel="noopener">Faire un don</a>
-    </footer>
-  </section>
   </div>
 
   <script src="js/config.js?v=__BUILD__"></script>
